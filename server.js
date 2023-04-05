@@ -32,7 +32,7 @@ function choices() {
       choices: [
         '➡ View all departments',
         '➡ Add Employee',
-        '➡ Update Employee Role', //TODO
+        '➡ Update Employee Role',
         '➡ View All Roles',
         '➡ Add Role',
         '➡ View All Employees',
@@ -162,7 +162,46 @@ function choices() {
           );
         });
       });
-    }else {
+    //UPDATE EMPLOYEE ROLE
+  } else if (answers.theme === '➡ Update Employee Role') {
+    db.query('SELECT * FROM employee', (err, results) => {
+      if (err) throw err;
+      const employees = results.map((employee) => ({
+        name: `${employee.first_name} ${employee.last_name}`,
+        value: employee.id
+      }));
+      db.query('SELECT * FROM role', (err, results) => {
+        if (err) throw err;
+        const roles = results.map((role) => ({
+          name: role.title,
+          value: role.id
+        }));
+        const questions = [
+          {
+            type: 'list',
+            name: 'employee_id',
+            message: `Which employee's role do you want to update?`,
+            choices: employees
+          },
+          {
+            type: 'list',
+            name: 'new_role',
+            message: "What is the employee's new role?",
+            choices: roles
+          }
+        ];
+        inquirer.prompt(questions).then(answers => {
+          const employeeId = answers.employee_id;
+          const newRoleId = answers.new_role;
+          db.query('UPDATE employee SET role_id = ? WHERE id = ?', [newRoleId, employeeId], (err, results) => {
+            if (err) throw err;
+            console.log(`Employee's role has been updated successfully! ✅`);
+            choices();
+          });
+        });
+      });
+    });  
+  } else {
     console.log('Goodbye!');
       process.exit();
   }
