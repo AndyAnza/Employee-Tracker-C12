@@ -31,7 +31,7 @@ function choices() {
       message: 'What would you like to do?',
       choices: [
         '➡ View all departments',
-        '➡ Add Employee', //TODO
+        '➡ Add Employee',
         '➡ Update Employee Role', //TODO
         '➡ View All Roles',
         '➡ Add Role',
@@ -122,37 +122,49 @@ function choices() {
       });
     });  
       //ADD EMPLOYEE
-  } else if (answers.theme === '➡ Add Employee') {
-    let role_id = [];
-    const questions = [
-      {
-        type: 'input',
-        name: 'first_name',
-        message: `What is the employee's first name?`,
-      },
-      {
-        type: 'input',
-        name: 'last_name',
-        message: `What is the employee's last name?`,
-      },
-      {
-        type: 'rawlist',
-        name: 'role_id',
-        message: 'Which department does the role belong to?',
-        choices: role,
-      },
-    ];
-    inquirer.prompt(role).then(answers => {
-      db.query(
-        'INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)',
-        [answers.first_name, answers.last_name, answers.role_id],
-        (err, results) => {
-          if (err) throw err;
-          role_id.push(db.query('SELECT role_id FROM role'));
-          console.log('Added Role to the database ✅');
-        }
-        );
+    } else if (answers.theme === '➡ Add Employee') {
+      db.query('SELECT * FROM role', (err, results) => {
+        if (err) throw err;
+    
+        const role_id = results.map(role => ({
+          name: role.title,
+          value: role.id
+        }));
+    
+        const questions = [
+          {
+            type: 'input',
+            name: 'first_name',
+            message: `What is the employee's first name?`,
+          },
+          {
+            type: 'input',
+            name: 'last_name',
+            message: `What is the employee's last name?`,
+          },
+          {
+            type: 'list',
+            name: 'role_id',
+            message: 'Which role does the employee have?',
+            choices: role_id,
+          },
+        ];
+    
+        inquirer.prompt(questions).then(answers => {
+          db.query(
+            'INSERT INTO employee (first_name, last_name, role_id) VALUES (?, ?, ?)',
+            [answers.first_name, answers.last_name, answers.role_id],
+            (err, results) => {
+              if (err) throw err;
+              console.log('Added Employee to the database ✅');
+              choices();
+            }
+          );
+        });
       });
+    }else {
+    console.log('Goodbye!');
+      process.exit();
   }
 });
 }
