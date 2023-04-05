@@ -25,10 +25,14 @@ CREATE TABLE employee (
     role_id INT NOT NULL,
     FOREIGN KEY (role_id) REFERENCES role (id),
     manager_id INT,
-    FOREIGN KEY (manager_id) REFERENCES employee (id)
-    ON DELETE SET NULL
+    FOREIGN KEY (manager_id) REFERENCES employee (id) ON DELETE SET NULL
 );
+
 
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ('John', 'Doe', 1, null), ('Mike', 'Chan', 2, 1), ('Ashley', 'Rodriguez', 3, null), ('Kevin', 'Tupik', 4, 3), ('Kunal', 'Singh', 5, null), ('Malia', 'Brown', 6, 5), ('Sarah', 'Lourd', 7, null), ('Tom', 'Allen', 8, 7);
 
+
+SELECT role.id, role.title, department.name, role.salary FROM role JOIN department ON role.department_id = department.id;
+
+SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager_name FROM employee JOIN role ON employee.role_id = role.id JOIN department ON role.department_id = department.id LEFT JOIN employee AS manager ON employee.manager_id = manager.id;
